@@ -1,5 +1,10 @@
 # 🕹️ A03 Crypto Social Dashboard
 
+![Stars](https://img.shields.io/github/stars/<username>/a03-crypto-social-dashboard?style=for-the-badge&color=yellow)
+![Forks](https://img.shields.io/github/forks/<username>/a03-crypto-social-dashboard?style=for-the-badge&color=blue)
+![Issues](https://img.shields.io/github/issues/<username>/a03-crypto-social-dashboard?style=for-the-badge&color=red)
+![License](https://img.shields.io/github/license/<username>/a03-crypto-social-dashboard?style=for-the-badge&color=green)
+
 Một dashboard retro neon để theo dõi giá crypto realtime và thảo luận ngay trong **Social Feed**.
 
 ## ✨ Tính năng
