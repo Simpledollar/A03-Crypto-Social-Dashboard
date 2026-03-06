@@ -4,37 +4,204 @@
   <meta charset="UTF-8">
   <title>A03 Crypto Social Dashboard</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
   <style>
     body {
-      background: black;
+      background: radial-gradient(circle at center, #000 60%, #111 100%);
       color: lime;
-      font-family: "Press Start 2P", monospace; /* font retro */
+      font-family: "Press Start 2P", monospace;
       text-align: center;
+    }
+    h1 {
+      text-shadow: 0 0 10px lime, 0 0 20px cyan;
     }
     .card {
       display: inline-block;
       background: #111;
-      border: 2px solid lime;
+      border: 2px solid;
       margin: 20px;
       padding: 20px;
       border-radius: 8px;
-      box-shadow: 0 0 10px lime;
+      animation: neonPulse 2s infinite alternate;
+      vertical-align: top;
     }
     canvas {
       background: #222;
       border: 1px solid lime;
       margin-top: 10px;
     }
+    @keyframes neonPulse {
+      from { box-shadow: 0 0 10px #0ff; }
+      to   { box-shadow: 0 0 25px #f0f; }
+    }
+    .price {
+      font-size: 14px;
+      margin: 5px;
+    }
+    #feed {
+      height: 200px;
+      overflow-y: auto;
+      background: #000;
+      border: 1px solid lime;
+      padding: 10px;
+      text-align: left;
+    }
+    #feedInput {
+      width: 70%;
+      background: #111;
+      color: lime;
+      border: 2px solid lime;
+      font-family: "Press Start 2P";
+      margin-top: 10px;
+    }
+    #postBtn {
+      background: #111;
+      color: lime;
+      border: 2px solid lime;
+      font-family: "Press Start 2P";
+      padding: 5px 10px;
+    }
   </style>
 </head>
 <body>
   <h1>🕹️ Crypto Social Dashboard</h1>
+
   {% for coin, price in prices.items() %}
-    <div class="card">
+    <div class="card" id="{{ coin }}Card">
       <h2>{{ coin }}</h2>
-      <div>{{ price }} USD</div>
+      <div class="price" id="{{ coin }}Price">{{ price }} USD</div>
       <canvas id="{{ coin }}Chart" width="400" height="200"></canvas>
     </div>
   {% endfor %}
+
+  <!-- Social Feed -->
+  <div class="card" style="width:90%;">
+    <h2>Social Feed</h2>
+    <div id="feed">
+      <p style="color:cyan;">[20:00] Alice: BTC đang pump!</p>
+      <p style="color:magenta;">[20:01] Bob: DOGE to the moon 🚀</p>
+    </div>
+    <input id="feedInput" type="text" placeholder="Type message...">
+    <button id="postBtn" onclick="postMessage()">Post</button>
+  </div>
+
+  <script>
+    function createRetroChart(ctxId, label, price, color) {
+      const initPrice = price || 1;
+      return new Chart(document.getElementById(ctxId).getContext('2d'), {
+        type: 'line',
+        data: {
+          labels: ["Start"],
+          datasets: [{
+            label: label,
+            data: [initPrice],
+            borderColor: color,
+            backgroundColor: color,
+            fill: false,
+            tension: 0.1
+          }]
+        },
+        options: {
+          plugins: {
+            title: {
+              display: true,
+              text: label + " Price (USD)",
+              color: "lime",
+              font: { family: "Press Start 2P", size: 12 }
+            }
+          },
+          scales: {
+            x: { ticks: { color: "lime", font: { family: "Press Start 2P", size: 8 } } },
+            y: { ticks: { color: "lime", font: { family: "Press Start 2P", size: 8 } } }
+          }
+        }
+      });
+    }
+
+    const charts = {
+      BTC: createRetroChart("BTCChart", "Bitcoin (BTC)", {{ prices["BTC"] }}, "#FFD700"),
+      ETH: createRetroChart("ETHChart", "Ethereum (ETH)", {{ prices["ETH"] }}, "#00FFFF"),
+      SOL: createRetroChart("SOLChart", "Solana (SOL)", {{ prices["SOL"] }}, "#FF00FF"),
+      BNB: createRetroChart("BNBChart", "Binance Coin (BNB)", {{ prices["BNB"] }}, "#FFA500"),
+      DOGE: createRetroChart("DOGEChart", "Dogecoin (DOGE)", {{ prices["DOGE"] }}, "#00FF00")
+    };
+
+    let lastPrices = {
+      BTC: {{ prices["BTC"] }},
+      ETH: {{ prices["ETH"] }},
+      SOL: {{ prices["SOL"] }},
+      BNB: {{ prices["BNB"] }},
+      DOGE: {{ prices["DOGE"] }}
+    };
+
+    function addAlertToFeed(msg, color="yellow") {
+      const feed = document.getElementById("feed");
+      const time = new Date().toLocaleTimeString();
+      const p = document.createElement("p");
+      p.style.color = color;
+      p.innerText = `[${time}] ALERT: ${msg}`;
+      feed.appendChild(p);
+      feed.scrollTop = feed.scrollHeight;
+    }
+
+    async function updatePrices() {
+      const response = await fetch("https://api.binance.com/api/v3/ticker/price?symbols=[\"BTCUSDT\",\"ETHUSDT\",\"SOLUSDT\",\"BNBUSDT\",\"DOGEUSDT\"]");
+      const data = await response.json();
+      const newPrices = {
+        BTC: parseFloat(data.find(d => d.symbol === "BTCUSDT").price),
+        ETH: parseFloat(data.find(d => d.symbol === "ETHUSDT").price),
+        SOL: parseFloat(data.find(d => d.symbol === "SOLUSDT").price),
+        BNB: parseFloat(data.find(d => d.symbol === "BNBUSDT").price),
+        DOGE: parseFloat(data.find(d => d.symbol === "DOGEUSDT").price)
+      };
+
+      for (const coin in charts) {
+        const el = document.getElementById(coin + "Price");
+        const oldPrice = lastPrices[coin];
+        const newPrice = newPrices[coin];
+        lastPrices[coin] = newPrice;
+
+        el.innerText = newPrice + " USD";
+
+        // Alert giá đưa vào feed thay vì popup
+        if (coin === "BTC" && newPrice > 70000 && oldPrice <= 70000) {
+          addAlertToFeed("⚡ BTC vượt 70,000 USD!", "yellow");
+        }
+        if (coin === "DOGE" && newPrice > 0.1 && oldPrice <= 0.1) {
+          addAlertToFeed("🚀 DOGE vượt 0.1 USD!", "orange");
+        }
+
+        const chart = charts[coin];
+        chart.data.labels.push(new Date().toLocaleTimeString());
+        chart.data.datasets[0].data.push(newPrice);
+
+        // Giữ tối đa 20 điểm
+        if (chart.data.labels.length > 20) {
+          chart.data.labels.shift();
+          chart.data.datasets[0].data.shift();
+        }
+
+        chart.update();
+      }
+    }
+
+    setInterval(updatePrices, 3000);
+
+    // Social Feed
+    function postMessage() {
+      const input = document.getElementById("feedInput");
+      const msg = input.value;
+      if (msg.trim() !== "") {
+        const feed = document.getElementById("feed");
+        const time = new Date().toLocaleTimeString();
+        const p = document.createElement("p");
+        p.style.color = "#0ff";
+        p.innerText = `[${time}] You: ${msg}`;
+        feed.appendChild(p);
+        feed.scrollTop = feed.scrollHeight;
+        input.value = "";
+      }
+    }
+  </script>
 </body>
 </html>
