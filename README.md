@@ -4,6 +4,8 @@
 ![Forks](https://img.shields.io/github/forks/<username>/a03-crypto-social-dashboard?style=for-the-badge&color=blue)
 ![Issues](https://img.shields.io/github/issues/<username>/a03-crypto-social-dashboard?style=for-the-badge&color=red)
 ![License](https://img.shields.io/github/license/<username>/a03-crypto-social-dashboard?style=for-the-badge&color=green)
+![Build](https://img.shields.io/github/actions/workflow/status/<username>/a03-crypto-social-dashboard/python-app.yml?style=for-the-badge&label=build&color=brightgreen)
+![Tests](https://img.shields.io/github/actions/workflow/status/<username>/a03-crypto-social-dashboard/tests.yml?style=for-the-badge&label=tests&color=orange)
 
 Một dashboard retro neon để theo dõi giá crypto realtime và thảo luận ngay trong **Social Feed**.
 
