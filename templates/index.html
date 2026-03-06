@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>A03 Crypto Social Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      background: black;
+      color: lime;
+      font-family: "Press Start 2P", monospace; /* font retro */
+      text-align: center;
+    }
+    .card {
+      display: inline-block;
+      background: #111;
+      border: 2px solid lime;
+      margin: 20px;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px lime;
+    }
+    canvas {
+      background: #222;
+      border: 1px solid lime;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>🕹️ Crypto Social Dashboard</h1>
+  {% for coin, price in prices.items() %}
+    <div class="card">
+      <h2>{{ coin }}</h2>
+      <div>{{ price }} USD</div>
+      <canvas id="{{ coin }}Chart" width="400" height="200"></canvas>
+    </div>
+  {% endfor %}
+</body>
+</html>
